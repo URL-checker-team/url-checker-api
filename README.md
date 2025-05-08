@@ -13,7 +13,6 @@ model.pkl – Trained machine learning model
 
 label_encoder.pkl – Label encoder for decoding prediction outputs
 
-
 Once downloaded, place both files into the root of the url-checker-api/ directory like so:
 
 url-checker-api/
@@ -52,3 +51,13 @@ Install required Python packages:
 ```bash
 pip install flask flask-cors pandas joblib
 ```
+
+## Start the Flask server
+
+In the terminal:
+
+python app.py
+
+If successful, you’ll see output like:
+
+- Running on http://127.0.0.1:5050/ (Press CTRL+C to quit)
