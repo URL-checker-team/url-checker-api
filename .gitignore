@@ -1,0 +1,35 @@
+# === Python cache ===
+__pycache__/
+*.py[cod]
+*.pyo
+
+# === Environment files ===
+.env
+.env.*
+
+# === Virtual environments ===
+venv/
+.venv/
+
+# === Jupyter checkpoints (if any notebooks exist) ===
+.ipynb_checkpoints/
+
+# === Model files ===
+*.pkl
+*.joblib
+
+# === Logs ===
+*.log
+
+# === System files ===
+.DS_Store
+Thumbs.db
+
+# === IDE/editor files ===
+.vscode/
+.idea/
+*.sublime-workspace
+
+# === Sensitive Data ===
+malicious_phish.csv
+secrets.json
