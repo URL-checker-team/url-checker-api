@@ -1,17 +1,47 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import jwt
+import datetime
 import joblib
 import pandas as pd
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
+# Secret key for JWT encoding/decoding
+SECRET_KEY = 'shgldsk123jdj'
+
+# Mock user database
+USERS = {
+    "test@example.com": "123456",  # Replace with hashed passwords in production
+}
+
 # Load trained model and encoder
 model = joblib.load('model.pkl')
 label_encoder = joblib.load('label_encoder.pkl')
 
-# === Step 3: Extract features for the model ===
+# --- JWT Login Route ---
 
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    # Simple auth check (replace with secure hash in real-world)
+    if USERS.get(email) == password:
+        token = jwt.encode({
+            'email': email,
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+        }, SECRET_KEY, algorithm='HS256')
+
+        return jsonify({'token': token})
+
+    return jsonify({'message': 'Invalid credentials'}), 401
+
+
+# === Extract features for the model ===
 
 def extract_features(url):
     return {
@@ -26,8 +56,8 @@ def extract_features(url):
         'count_dash': url.count('-')
     }
 
-# === Step 4: Define POST endpoint ===
 
+# ===  Define POST endpoint ===
 
 @app.route('/', methods=['POST'])
 def predict():

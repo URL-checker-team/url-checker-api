@@ -49,7 +49,7 @@ This is a Flask API backend that takes a URL input and uses a hybrid machine lea
 Install required Python packages:
 
 ```bash
-pip install flask flask-cors pandas joblib
+pip install flask flask-cors pandas joblib PyJWT
 ```
 
 ## Start the Flask server
