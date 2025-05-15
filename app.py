@@ -71,14 +71,21 @@ def predict():
 
         # Make prediction using trained model
         features = pd.DataFrame([extract_features(url)])
-        pred_class = model.predict(features)[0]
+        probs = model.predict_proba(features)[0]
 
         # Convert prediction number to label (e.g., 'benign')
-        pred_label = label_encoder.inverse_transform([pred_class])[0]
+        proba_dict = {
+            label_encoder.classes_[i]: round(probs[i] * 100, 2)
+            for i in range(len(probs))
+        }
+        # Properly indented
+        sorted_proba = dict(
+            sorted(proba_dict.items(), key=lambda x: x[1], reverse=True)
+        )
 
         # Send response back to frontend
         return jsonify({
-            'prediction': pred_label
+            'probabilities': sorted_proba
         })
 
     except Exception as e:
