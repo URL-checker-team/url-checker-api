@@ -16,10 +16,26 @@ label_encoder.pkl – Label encoder for decoding prediction outputs
 Once downloaded, place both files into the root of the url-checker-api/ directory like so:
 
 url-checker-api/
-├── app.py
-├── model.pkl
-├── label_encoder.pkl
-├── ...
+│
+├── app/
+│   ├── __init__.py              
+│   ├── models.py                
+│   ├── routes/
+│   │   ├── __init__.py
+│   │   ├── auth_routes.py       
+│   │   ├── predict_routes.py    
+│   │   └── train_routes.py      
+│   ├── services/
+│   │   ├── jwt_utils.py         
+│   │   └── feature_extractor.py
+│   └── uploads/                
+│
+├── config.py                    
+├── run.py                       
+├── model.pkl                    
+├── label_encoder.pkl            
+└── requirements.txt
+
 
 The backend will fail to start or make predictions if these files are missing.
 
@@ -50,6 +66,8 @@ Install required Python packages:
 
 ```bash
 pip install flask flask-cors pandas joblib PyJWT
+pip install flask flask-cors flask-sqlalchemy pymysql werkzeug pyjwt
+
 ```
 
 ## Start the Flask server
