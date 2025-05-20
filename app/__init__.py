@@ -5,16 +5,19 @@ from config import Config
 
 db = SQLAlchemy()
 
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
     db.init_app(app)
-    CORS(app, supports_credentials=True)
+    CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
-    from app.routes import auth_routes, predict_routes
+    from app.routes import auth_routes, predict_routes, history_routes
+
     app.register_blueprint(auth_routes.bp)
     app.register_blueprint(predict_routes.bp)
+    app.register_blueprint(history_routes.bp)
 
     with app.app_context():
         db.create_all()
