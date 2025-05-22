@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import datetime
 from app.services.feature_extractor import extract_features
 from app.models import ScanHistory
-from app import db
+from app.extensions import db
 
 bp = Blueprint('predict', __name__)
 

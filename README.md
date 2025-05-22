@@ -74,8 +74,14 @@ pip install flask flask-cors flask-sqlalchemy pymysql werkzeug pyjwt
 
 In the terminal:
 
-python app.py
+python run.py
 
 If successful, you’ll see output like:
 
 - Running on http://127.0.0.1:5050/ (Press CTRL+C to quit)
+
+
+## create tables in database
+
+```bash
+python create_admin.py   

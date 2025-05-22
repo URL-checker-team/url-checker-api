@@ -1,10 +1,9 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from config import Config
+from app.extensions import db
 
-db = SQLAlchemy()
-
+from app.routes import predict_bp, auth_bp, history_bp, report_bp
 
 def create_app():
     app = Flask(__name__)
@@ -13,11 +12,10 @@ def create_app():
     db.init_app(app)
     CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
-    from app.routes import auth_routes, predict_routes, history_routes
-
-    app.register_blueprint(auth_routes.bp)
-    app.register_blueprint(predict_routes.bp)
-    app.register_blueprint(history_routes.bp)
+    app.register_blueprint(predict_bp)
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(history_bp)
+    app.register_blueprint(report_bp)
 
     with app.app_context():
         db.create_all()
