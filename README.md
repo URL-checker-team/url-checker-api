@@ -19,11 +19,14 @@ url-checker-api/
 │
 ├── app/
 │   ├── __init__.py              
-│   ├── models.py                
+│   ├── models.py
+│   ├── extensions.py                
 │   ├── routes/
 │   │   ├── __init__.py
-│   │   ├── auth_routes.py       
-│   │   ├── predict_routes.py    
+│   │   ├── auth_routes.py
+│   │   ├── history_routes.py       
+│   │   ├── predict_routes.py
+│   │   ├── report_routes.py    
 │   │   └── train_routes.py      
 │   ├── services/
 │   │   ├── jwt_utils.py         
@@ -34,7 +37,7 @@ url-checker-api/
 ├── run.py                       
 ├── model.pkl                    
 ├── label_encoder.pkl            
-└── requirements.txt
+└── README.md
 
 
 The backend will fail to start or make predictions if these files are missing.

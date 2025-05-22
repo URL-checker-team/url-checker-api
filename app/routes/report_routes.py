@@ -50,13 +50,29 @@ def report_summary():
     
     latest_str = latest.astimezone(tz).strftime(
         "%Y-%m-%d %H:%M") if latest else None
+    
+    # Top 3 Malicious Types
+    top_malicious_types = (
+        db.session.query(
+            ScanHistory.result.label("type"),
+            func.count().label("count")
+        )
+        .filter(ScanHistory.result.in_(["defacement", "phishing", "malware"]))
+        .group_by(ScanHistory.result)
+        .order_by(func.count().desc())
+        .limit(3)
+        .all()
+    )
+    top_types_list = [{"type": row.type, "count": row.count} for row in top_malicious_types]
+
 
     return jsonify({
         "summary": {
             "totalUrlsChecked": total_count,
             "maliciousCount": malicious_count,
             "safeCount": safe_count,
-            "latestCheck": latest_str
+            "latestCheck": latest_str,
+            "topMaliciousTypes": top_types_list
         },
         "chart": chart_data_list
     })
