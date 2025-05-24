@@ -1,25 +1,35 @@
 from flask import Blueprint, request, jsonify, current_app
-import os, pandas as pd, joblib
+import os
+import pandas as pd
+import joblib
 from sklearn.ensemble import RandomForestClassifier
 from xgboost import XGBClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import VotingClassifier
 from app.services.feature_extractor import extract_features
+from app.models import DatasetFile
+from datetime import datetime
+from app.extensions import db
+
 
 # Define Flask blueprint for training-related endpoints
 bp = Blueprint("train", __name__, url_prefix="/api")
 
 # Ensure upload and model directories exist
+
+
 def ensure_directories():
     os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
     os.makedirs(current_app.config['MODEL_FOLDER'], exist_ok=True)
 
 # === Route: Upload CSV Dataset ===
+
+
 @bp.route("/upload-dataset", methods=["POST"])
 def upload_dataset():
 
-     # Validate file part
+    # Validate file part
     if "file" not in request.files:
         return jsonify({"error": "No file part"}), 400
 
@@ -34,6 +44,11 @@ def upload_dataset():
     filename = file.filename
     upload_path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
     file.save(upload_path)
+
+    # ✅ save upload record to database
+    new_record = DatasetFile(filename=filename, uploaded_at=datetime.utcnow())
+    db.session.add(new_record)
+    db.session.commit()
 
     return jsonify({"message": "File uploaded", "filename": filename})
 
@@ -69,16 +84,24 @@ def train_model():
         )
 
         # Define individual models
+        # n_estimators：The number of decision trees，random_state：Sets the random seed for reproducibility.
         rf = RandomForestClassifier(n_estimators=100, random_state=42)
-        xgb = XGBClassifier(objective="multi:softmax", num_class=len(label_encoder.classes_))
-        
+        # objective='multi:softmax'：Sets the learning task to multi-class classification
+        # num_class=len(le.classes_)：Specifies the number of target classes (e.g., benign, malware, phishing).
+        # eval_metric='mlogloss'：This sets the evaluation metric during training to multiclass log loss
+        xgb = XGBClassifier(objective="multi:softmax",
+                            num_class=len(label_encoder.classes_))
+
         # Define ensemble model using soft voting
-        model = VotingClassifier(estimators=[("rf", rf), ("xgb", xgb)], voting="soft")
+        model = VotingClassifier(
+            estimators=[("rf", rf), ("xgb", xgb)], voting="soft")
         model.fit(X_train, y_train)
 
         # Save the trained model and label encoder to disk
-        model_path = os.path.join(current_app.config["MODEL_FOLDER"], "model.pkl")
-        le_path = os.path.join(current_app.config["MODEL_FOLDER"], "label_encoder.pkl")
+        model_path = os.path.join(
+            current_app.config["MODEL_FOLDER"], "model.pkl")
+        le_path = os.path.join(
+            current_app.config["MODEL_FOLDER"], "label_encoder.pkl")
         joblib.dump(model, model_path)
         joblib.dump(label_encoder, le_path)
 
@@ -86,3 +109,17 @@ def train_model():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# === Route: check upload history route ===
+@bp.route("/upload-history", methods=["GET"])
+def upload_history():
+    records = DatasetFile.query.order_by(
+        DatasetFile.uploaded_at.desc()).limit(10).all()
+    result = [
+        {
+            "filename": r.filename,
+            "uploadedAt": r.uploaded_at.strftime("%Y-%m-%d %H:%M:%S")
+        }
+        for r in records
+    ]
+    return jsonify(result)
